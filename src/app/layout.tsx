@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import GlobalNavBar from '@/components/layout/GlobalNavBar'
+import { RoleProvider } from '@/context/RoleContext';
 
 
 // Google Fonts 설정
@@ -17,8 +18,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en" className={inter.variable}>
         <body className="bg-gray-100 text-gray-900">
-        <GlobalNavBar />
-        <main className="pt-16">{children}</main>
+        <RoleProvider>
+            <GlobalNavBar />
+            <main className="pt-16">
+                {children}
+            </main>
+        </RoleProvider>
         </body>
         </html>
     )

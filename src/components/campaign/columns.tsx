@@ -1,6 +1,7 @@
+// 📁 components/table/campaignColumns.tsx
 import { MRT_ColumnDef } from 'material-react-table';
 import { Campaign } from '@/types/campaign';
-import { renderTextCell, renderNumberCell, renderToggleCell } from './cellRenderers';
+import { renderTextCell, renderNumberCell, renderCampaignObjectiveCell, renderToggleCell, renderFloatCell } from './cellRenderers';
 
 // ✅ 캠페인 테이블 컬럼 정의
 export const campaignColumns: MRT_ColumnDef<Campaign>[] = [
@@ -8,7 +9,7 @@ export const campaignColumns: MRT_ColumnDef<Campaign>[] = [
         accessorKey: 'enabled',
         header: '상태',
         size: 100,
-        Cell: renderToggleCell,
+        Cell: renderToggleCell, // ✅ 수정된 타입 반영
         muiTableHeadCellProps: { sx: { textAlign: 'center' } },
     },
     {
@@ -22,7 +23,7 @@ export const campaignColumns: MRT_ColumnDef<Campaign>[] = [
         accessorKey: 'campaign_objective',
         header: '캠페인 목적',
         size: 200,
-        Cell: renderTextCell,
+        Cell: renderCampaignObjectiveCell, // ✅ 변환된 값을 표시하도록 변경
         muiTableHeadCellProps: { sx: { textAlign: 'left' } },
     },
     {
@@ -43,7 +44,7 @@ export const campaignColumns: MRT_ColumnDef<Campaign>[] = [
         accessorKey: 'ctr',
         header: 'CTR (%)',
         size: 120,
-        Cell: ({ cell }) => <div className="text-right">{(cell.getValue<number>() * 100).toFixed(2)}%</div>,
+        Cell: renderFloatCell, // ✅ 소수 셋째 자리 반올림 후, 둘째 자리까지 표시
         muiTableHeadCellProps: { sx: { textAlign: 'right' } },
     },
     {
@@ -57,7 +58,7 @@ export const campaignColumns: MRT_ColumnDef<Campaign>[] = [
         accessorKey: 'vtr',
         header: 'VTR (%)',
         size: 120,
-        Cell: ({ cell }) => <div className="text-right">{(cell.getValue<number>() * 100).toFixed(2)}%</div>,
+        Cell: renderFloatCell,
         muiTableHeadCellProps: { sx: { textAlign: 'right' } },
     },
 ];
