@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import UserTable from '@/components/user/UserTable';
 
 export default function UserPage() {
     const router = useRouter();
@@ -21,9 +22,9 @@ export default function UserPage() {
     if (role === null || role !== 'admin') return null;
 
     return (
-        <div>
-            <h1>사용자 페이지</h1>
-            <p>이 페이지는 어드민만 접근할 수 있습니다.</p>
+        <div className="container mx-auto p-6">
+            <h1 className="text-2xl font-bold mb-4">사용자 관리</h1>
+            <UserTable />
         </div>
     );
 }

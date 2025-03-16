@@ -307,3 +307,50 @@ export const MockCampaigns = {
     "first": true,
     "empty": false
 };
+
+
+
+export const MockUsers = {
+
+    "content": [
+        {
+            "id":1,
+            "email":"user1@wisebirds.ai",
+            "name":"사용자1",
+            "last_login_at":"2022-11-14T07:37:24.914Z"
+        },
+        {
+            "id":2,
+            "email":"user2@wisebirds.ai",
+            "name":"사용자2",
+            "last_login_at":"2022-11-14T07:37:24.914Z"
+        },
+        {
+            "id":3,
+            "email":"user3@wisebirds.ai",
+            "name":"사용자3",
+            "last_login_at":"2022-11-14T07:37:24.914Z"
+        },
+        {
+            id: 4,
+            email: "user4@wisebirds.ai",
+            name: "사용자4",
+            last_login_at: "2024-03-12T14:20:00.000Z",
+        },
+        {
+            id: 5,
+            email: "user5@wisebirds.ai",
+            name: "사용자5",
+            last_login_at: "2024-03-11T08:50:00.000Z",
+        },
+    ],
+    "size": 25,
+    "total_elements": 50,
+    "total_pages": 5,
+    "last": false,
+    "number": 0,
+    "sort": {},
+    "number_of_elements": 25,
+    "first": true,
+    "empty": false
+};

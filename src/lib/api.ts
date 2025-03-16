@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { CampaignResponse } from "@/types/campaign";
-import { MockUser, MockCampaigns } from '@/mocks/mockDatas';
+import { MockUser, MockCampaigns, MockUsers } from '@/mocks/mockDatas';
+import { UserResponse } from "@/types/user";
 
 // API 기본 URL 설정
 const api = axios.create({
@@ -63,6 +64,27 @@ export async function updateCampaignStatus(id: number, enabled: boolean): Promis
     } catch (error) {
         console.error(`Error updating campaign ${id} status:`, error);
         return false;
+    }
+}
+
+// ✅ 사용자 목록 가져오기 (Mock 데이터 적용)
+export async function fetchUsers(page: number = 0, size: number = 25): Promise<UserResponse | null> {
+    if (USE_MOCK) {
+        console.log('🚀 Using Mock Data for /users');
+        return new Promise((resolve) => setTimeout(() => resolve(MockUsers), 500));
+    }
+
+    try {
+        const response = await api.get<UserResponse>('/users', {
+            params: { page, size },
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('❌ Error fetching user data:', error);
+
+        // ✅ API 실패 시에도 Mock 데이터 반환 (실제 운영 환경에서는 주석 처리 가능)
+        return new Promise((resolve) => setTimeout(() => resolve(MockUsers), 500));
     }
 }
 

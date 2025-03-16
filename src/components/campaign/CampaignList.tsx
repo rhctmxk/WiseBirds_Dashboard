@@ -1,7 +1,7 @@
 'use client';
 
 import { useCampaigns } from '@/hooks/useCampaigns';
-import { campaignColumns } from './columns';
+import { campaignColumns } from './campaignColumns';
 import { MaterialReactTable } from 'material-react-table';
 import { Campaign } from '@/types/campaign';
 import Skeleton from '@/components/ui/Skeleton';
@@ -32,6 +32,9 @@ export default function CampaignList() {
                 columns={campaignColumns} // ✅ 분리된 컬럼 사용
                 data={data.content} // ✅ 테이블 데이터 연결
                 paginationDisplayMode="pages" // ✅ 페이지네이션 적용
+                localization={{
+                    rowsPerPage: '페이지당 캠페인 수',
+                }}
                 initialState={{
                     pagination: { pageSize: 25, pageIndex: 0 }, // ✅ 25개씩 표시
                     density: 'compact'
