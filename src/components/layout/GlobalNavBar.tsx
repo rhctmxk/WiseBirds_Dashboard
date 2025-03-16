@@ -5,15 +5,19 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FaRegUser } from "react-icons/fa"
 import RoleSelect from '@/components/layout/RoleSelect';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function GlobalNavBar() {
     const pathname = usePathname();
     const router = useRouter();
     const [role, setRole] = useState<string | null>(null); // ✅ 초기값을 null로 설정
     const [isProfilePopupOpen, setIsProfilePopupOpen] = useState(false);
-    const profileRef = useRef<HTMLDivElement>(null);
+    const profileRef = useRef<HTMLLIElement>(null);
 
-    // 🚀 클라이언트에서 localStorage의 role 값을 가져오기 (서버에서는 실행되지 않음)
+    // 유저 정보 가져오기
+    const { user, loading } = useAuth();
+
+    // 클라이언트에서 localStorage의 role 값을 가져오기 (서버에서는 실행되지 않음)
     useEffect(() => {
         const storedRole = localStorage.getItem('role') || 'admin'; // ✅ 기본값 'admin'
         localStorage.setItem('role', storedRole); // ✅ 없으면 'admin'으로 저장
@@ -26,8 +30,8 @@ export default function GlobalNavBar() {
         }
     }, [pathname, role, router]);
 
-    // 🚨 초기 렌더링 중에는 UI를 숨김 (Hydration Mismatch 방지)
-    if (role === null) {
+    // 초기 렌더링 중에는 UI를 숨김 (Hydration Mismatch 방지)
+    if (role === null || loading) {
         return null;
     }
 
@@ -38,12 +42,12 @@ export default function GlobalNavBar() {
                     <Link href="/" className="text-lg md:text-2xl font-bold hover:underline">
                         와이즈버즈
                     </Link>
-                    <Link href="/campaign" className={`hover:underline ${pathname === '/campaign' ? 'text-blue-400' : ''}`}>
+                    <Link href="/campaign" className={`hover:underline ${pathname === '/campaign' ? 'text-point' : ''}`}>
                         캠페인
                     </Link>
                     {/* ✅ role이 설정된 이후에만 /user 링크를 보여줌 */}
                     {role === 'admin' && (
-                        <Link href="/user" className={`hover:underline ${pathname === '/user' ? 'text-blue-400' : ''}`}>
+                        <Link href="/user" className={`hover:underline ${pathname === '/user' ? 'text-point' : ''}`}>
                             사용자
                         </Link>
                     )}
@@ -52,18 +56,18 @@ export default function GlobalNavBar() {
                 <ul className="flex space-x-8 items-center">
                     <li className="relative" ref={profileRef}>
                         <button
-                            className="flex space-x-2 p-2 transition items-center hover:text-blue-400"
+                            className="flex space-x-2 p-2 transition items-center hover:text-point"
                             onClick={() => setIsProfilePopupOpen(!isProfilePopupOpen)}
                         >
                             <FaRegUser />
                             <span>jhlee@gmail.com</span>
                         </button>
 
-                        {isProfilePopupOpen && (
+                        {isProfilePopupOpen && user && (
                             <div className="absolute right-0 mt-2 w-48 bg-white text-black shadow-md rounded-md p-4 flex flex-col space-y-2">
-                                <span className="font-semibold text-gray-700">이지현</span>
-                                <span className="text-gray-500">leejh@wisebirds.com</span>
-                                <span className="text-gray-400 text-sm">와이즈버즈</span>
+                                <span className="font-semibold text-gray-700">{user.name}</span>
+                                <span className="text-gray-500">{user.email}</span>
+                                <span className="text-gray-400 text-sm">{user.company.name}</span>
                             </div>
                         )}
                     </li>
