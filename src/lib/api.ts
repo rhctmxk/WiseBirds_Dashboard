@@ -32,12 +32,38 @@ async function fetchData<T>(endpoint: string, mockData: T, params: object = {}):
 
 // ✅ 유저 정보 가져오기
 export async function fetchUser() {
-    return fetchData('/api/auth/me', MockUser);
+    return fetchData('/auth/me', MockUser);
 }
 
 // ✅ 캠페인 목록 가져오기
 export async function fetchCampaigns(page: number = 0, size: number = 25): Promise<CampaignResponse | null> {
     return fetchData<CampaignResponse>('/campaigns', MockCampaigns, { page, size });
+}
+
+
+// ✅ 캠페인 상태 업데이트 API 호출
+export async function updateCampaignStatus(id: number, enabled: boolean): Promise<boolean> {
+    if (!id) {
+        console.error('Error: Campaign ID is required.');
+        return false;
+    }
+
+    try {
+        const response = await api.patch<{ result: boolean; id: number }>(`/campaigns/${id}`, {
+            enabled,
+        });
+
+        if (response.data.result) {
+            console.log(`Campaign ${id} updated successfully.`);
+            return true;
+        } else {
+            console.error(`Failed to update campaign ${id}.`);
+            return false;
+        }
+    } catch (error) {
+        console.error(`Error updating campaign ${id} status:`, error);
+        return false;
+    }
 }
 
 
