@@ -13,11 +13,15 @@ export default function CampaignList() {
 
     if (loading) {
         return (
-            <div className="p-6">
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-8 w-full" />
+            <div className="p-6 flex flex-col items-center justify-center min-h-[400px]">
+                {/* ✅ 더 나은 로딩 UI 적용 */}
+                <div className="w-full max-w-3xl">
+                    <div className="h-10 w-2/3 bg-gray-200 rounded-md animate-pulse mb-4"></div>
+                    <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                    <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                    <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                    <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse"></div>
+                </div>
             </div>
         );
     }

@@ -2,6 +2,7 @@ import { MRT_ColumnDef } from 'material-react-table';
 import { User } from '@/types/user';
 import dayjs from 'dayjs';
 import { Button } from '@mui/material';
+import {applyCenterAlignStyles} from "@/components/campaign/cellRenderers";
 
 const formatDate = (dateString: string): string => {
     return dayjs(dateString).format('YYYY-MM-DD HH:mm:ss');
@@ -28,14 +29,14 @@ export const userColumns = (handleEditUser: (user: User) => void): MRT_ColumnDef
         size: 180,
         enableSorting: true,
         muiTableHeadCellProps: { sx: { textAlign: 'left' } },
-        Cell: ({ cell }) => <div className="text-center">{formatDate(cell.getValue<string>())}</div>,
+        Cell: ({ cell }) => <div className="text-left">{formatDate(cell.getValue<string>())}</div>,
     },
     {
         accessorKey: 'actions',
         header: '수정',
         size: 100,
         enableSorting: false,
-        muiTableHeadCellProps: { sx: { textAlign: 'center' } },
+        ...applyCenterAlignStyles(),
         Cell: ({ row }) => (
             <Button
                 variant="outlined"

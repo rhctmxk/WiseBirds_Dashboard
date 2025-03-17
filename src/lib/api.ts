@@ -42,7 +42,7 @@ export async function fetchCampaigns(page: number = 0, size: number = 25): Promi
 }
 
 
-// ✅ 캠페인 상태 업데이트 API 호출
+// ✅ 캠페인 상태 업데이트 API 호출 (Hook 제거)
 export async function updateCampaignStatus(id: number, enabled: boolean): Promise<boolean> {
     if (!id) {
         console.error('Error: Campaign ID is required.');
@@ -50,20 +50,20 @@ export async function updateCampaignStatus(id: number, enabled: boolean): Promis
     }
 
     try {
-        const response = await api.patch<{ result: boolean; id: number }>(`/campaigns/${id}`, {
+        const response = await axios.patch<{ result: boolean; id: number }>(`/api/campaigns/${id}`, {
             enabled,
         });
 
         if (response.data.result) {
-            console.log(`Campaign ${id} updated successfully.`);
+            console.log(`✅ 캠페인 ${id} 업데이트 성공`);
             return true;
         } else {
-            console.error(`Failed to update campaign ${id}.`);
+            console.error(`❌ 캠페인 ${id} 업데이트 실패`);
             return false;
         }
     } catch (error) {
-        console.error(`Error updating campaign ${id} status:`, error);
-        return false;
+        console.error(`❌ 캠페인 ${id} 상태 업데이트 중 오류 발생:`, error);
+        throw new Error(`캠페인 ${id} 상태를 변경하는 동안 오류가 발생했습니다.`);
     }
 }
 

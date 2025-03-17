@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import axios, { AxiosError } from 'axios';
+import { useError } from '@/context/ErrorContext'; // ✅ 에러 핸들링 컨텍스트 추가
 
 interface UserCreateModalProps {
     open: boolean;
@@ -11,7 +12,6 @@ interface UserCreateModalProps {
     onUserCreated: () => void; // ✅ 사용자 생성 후 테이블 업데이트
 }
 
-// ✅ 사용자 생성 API 응답 타입
 interface CreateUserResponse {
     result: boolean;
     id: number;
@@ -19,13 +19,16 @@ interface CreateUserResponse {
 
 export default function UserCreateModal({ open, onClose, onUserCreated }: UserCreateModalProps) {
     const [email, setEmail] = useState('');
-    const [isEmailValid, setIsEmailValid] = useState<boolean | null>(null); // ✅ 이메일 중복 체크 결과
+    const [isEmailValid, setIsEmailValid] = useState<boolean | null>(null);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false); // ✅ 비밀번호 확인 토글 상태
     const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string; name?: string }>({});
     const [loading, setLoading] = useState(false);
+
+    const { setError } = useError(); // ✅ 전역 에러 핸들링 컨텍스트 사용
 
     // ✅ 이메일 검증
     const validateEmail = (email: string): string | null => {
@@ -59,7 +62,7 @@ export default function UserCreateModal({ open, onClose, onUserCreated }: UserCr
         return null;
     };
 
-    // ✅ 이메일 중복 체크 API 호출 (Blur 이벤트에서 실행)
+    // ✅ 이메일 중복 체크 API 호출
     const checkEmailExists = async () => {
         const emailError = validateEmail(email);
         if (emailError) {
@@ -75,8 +78,7 @@ export default function UserCreateModal({ open, onClose, onUserCreated }: UserCr
                 email: response.data.result ? '이미 사용중인 이메일입니다. 다른 이메일을 입력하세요.' : '',
             }));
         } catch (error) {
-            console.error('❌ 이메일 중복 확인 실패:', error);
-            setErrors((prev) => ({ ...prev, email: '이메일 중복 확인 중 오류가 발생했습니다.' }));
+            setError('이메일 중복 확인 중 오류가 발생했습니다.'); // ✅ 에러 모달 띄우기
         }
     };
 
@@ -113,11 +115,10 @@ export default function UserCreateModal({ open, onClose, onUserCreated }: UserCr
                 if (axiosError.response?.data?.message === 'EMAIL_DUPLICATE') {
                     setErrors((prev) => ({ ...prev, email: '이미 사용중인 이메일입니다. 다른 이메일을 입력하세요.' }));
                 } else {
-                    setErrors((prev) => ({ ...prev, email: '사용자를 생성할 수 없습니다.' }));
+                    setError('사용자를 생성할 수 없습니다.'); // ✅ 에러 모달 띄우기
                 }
             } else {
-                console.error('❌ 알 수 없는 오류:', error);
-                setErrors((prev) => ({ ...prev, email: '예기치 않은 오류가 발생했습니다.' }));
+                setError('예기치 않은 오류가 발생했습니다.'); // ✅ 에러 모달 띄우기
             }
         } finally {
             setLoading(false);
@@ -130,6 +131,7 @@ export default function UserCreateModal({ open, onClose, onUserCreated }: UserCr
             <DialogContent>
                 <div className="p-4 flex flex-col gap-4">
                     <TextField
+                        required
                         label="아이디 (이메일)"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -139,6 +141,7 @@ export default function UserCreateModal({ open, onClose, onUserCreated }: UserCr
                         helperText={errors.email || ''}
                     />
                     <TextField
+                        required
                         label="비밀번호"
                         type={showPassword ? 'text' : 'password'}
                         placeholder="영문, 숫자, 특수문자 조합 8~15자"
@@ -158,15 +161,26 @@ export default function UserCreateModal({ open, onClose, onUserCreated }: UserCr
                         }}
                     />
                     <TextField
+                        required
                         label="비밀번호 확인"
-                        type="password"
+                        type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         fullWidth
                         error={!!errors.confirmPassword}
                         helperText={errors.confirmPassword || ''}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                     <TextField
+                        required
                         label="이름"
                         value={name}
                         onChange={(e) => setName(e.target.value)}

@@ -1,7 +1,7 @@
 export const MockUser = {
     id: 1,
-    email: "abc@abc.com",
-    name: "홍길동",
+    email: "leejh@wisebirds.com",
+    name: "이지현",
     company: {
         id: 1,
         name: "와이즈버즈"

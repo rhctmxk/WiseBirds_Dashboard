@@ -6,6 +6,7 @@ import { Switch } from '@mui/material';
 import { Campaign } from '@/types/campaign';
 import { useRole } from '@/context/RoleContext';
 import { updateCampaignStatus } from '@/lib/api';
+import { useError } from '@/context/ErrorContext';
 
 // ✅ 텍스트 (왼쪽 정렬)
 export const renderTextCell = ({ cell }: { cell: MRT_Cell<Campaign> }) => (
@@ -16,6 +17,40 @@ export const renderTextCell = ({ cell }: { cell: MRT_Cell<Campaign> }) => (
 export const renderNumberCell = ({ cell }: { cell: MRT_Cell<Campaign> }) => (
     <div className="text-right">{cell.getValue<number>().toLocaleString()}</div>
 );
+
+// ✅ 숫자 (헤더 오른쪽 정렬)
+export const applyRightAlignStyles = () => ({
+    muiTableHeadCellProps: {
+        sx: {
+            '& .Mui-TableHeadCell-Content': {
+                justifyContent: "flex-end !important",
+                textAlign: "right !important",
+            }
+        }
+    },
+    muiTableBodyCellProps: {
+        sx: {
+            textAlign: "right",
+        }
+    }
+});
+// ✅ 숫자 (헤더 오른쪽 정렬)
+export const applyCenterAlignStyles = () => ({
+    muiTableHeadCellProps: {
+        sx: {
+            '& .Mui-TableHeadCell-Content': {
+                justifyContent: "center !important",
+                textAlign: "center !important",
+            }
+        }
+    },
+    muiTableBodyCellProps: {
+        sx: {
+            textAlign: "center",
+        }
+    }
+});
+
 
 // ✅ 캠페인 목적 내용 전환
 const campaignObjectiveMap: Record<string, string> = {
@@ -47,15 +82,14 @@ export const renderFloatCell = ({ cell }: { cell: MRT_Cell<Campaign> }) => {
 };
 
 
-
-// ✅ 토글 스위치 (가운데 정렬) - Viewer 제한 적용 & API 호출 반영
-export const renderToggleCell = ({ cell }: { cell: MRT_Cell<Campaign> }) => {
-    const initialEnabled = cell.getValue<boolean>(); // ✅ 초기 상태값
-    const [isEnabled, setIsEnabled] = useState(initialEnabled); // ✅ 상태 관리
-    const { role } = useRole(); // ✅ Context에서 role 가져오기
+// ✅ 토글 스위치 (에러 발생 시 모달 표시)
+export function renderToggleCell({ cell }: { cell: MRT_Cell<Campaign> }) {
+    const initialEnabled = cell.getValue<boolean>();
+    const [isEnabled, setIsEnabled] = useState(initialEnabled);
+    const { role } = useRole();
+    const { setError } = useError();  // ✅ React 컴포넌트 안에서 호출 가능
 
     if (!role) return null;
-
     const isEditable = role === 'admin' || role === 'manager';
 
     const handleToggleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,9 +98,19 @@ export const renderToggleCell = ({ cell }: { cell: MRT_Cell<Campaign> }) => {
 
         setIsEnabled(newStatus); // ✅ UI 즉시 변경
 
-        const success = await updateCampaignStatus(cell.row.original.id, newStatus);
-        if (!success) {
+        try {
+            const success = await updateCampaignStatus(cell.row.original.id, newStatus);
+            if (!success) {
+                throw new Error('캠페인 상태 업데이트 실패');
+            }
+        } catch (error: unknown) {
             setIsEnabled(initialEnabled); // ✅ API 실패 시 기존 값으로 복구
+
+            if (error instanceof Error) {
+                setError(error.message); // ✅ 전역 에러 컨텍스트 업데이트
+            } else {
+                setError('알 수 없는 오류가 발생했습니다.');
+            }
         }
     };
 
@@ -80,4 +124,52 @@ export const renderToggleCell = ({ cell }: { cell: MRT_Cell<Campaign> }) => {
             />
         </div>
     );
-};
+}
+
+
+interface ToggleCellProps {
+    cell: MRT_Cell<Campaign>;
+}
+
+export function ToggleCell({ cell }: ToggleCellProps) {
+    const initialEnabled = cell.getValue<boolean>();
+    const [isEnabled, setIsEnabled] = useState(initialEnabled);
+    const { role } = useRole();
+    const { setError } = useError();
+
+    if (!role) return null;
+    const isEditable = role === 'admin' || role === 'manager';
+
+    const handleToggleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (!isEditable) return;
+        const newStatus = event.target.checked;
+
+        setIsEnabled(newStatus); // ✅ UI 즉시 변경
+
+        try {
+            const success = await updateCampaignStatus(cell.row.original.id, newStatus);
+            if (!success) {
+                throw new Error('캠페인 상태 업데이트 실패');
+            }
+        } catch (error: unknown) {
+            setIsEnabled(initialEnabled); // ✅ API 실패 시 기존 값으로 복구
+
+            if (error instanceof Error) {
+                setError(error.message); // ✅ 전역 에러 컨텍스트 업데이트
+            } else {
+                setError('알 수 없는 오류가 발생했습니다.');
+            }
+        }
+    };
+
+    return (
+        <div className="text-center">
+            <Switch
+                checked={isEnabled}
+                color="success"
+                disabled={!isEditable}
+                onChange={handleToggleChange}
+            />
+        </div>
+    );
+}

@@ -9,8 +9,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import UserEditModal from '@/components/user/UserEditModal';
 import UserCreateModal from "@/components/user/UserCreateModal";
 import { User } from '@/types/user';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
-
+import { Button } from '@mui/material';
 
 export default function UserTable() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -32,11 +31,14 @@ export default function UserTable() {
 
     if (loading) {
         return (
-            <div className="p-6">
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-8 w-full mb-2" />
-                <Skeleton className="h-8 w-full" />
+            <div className="p-6 flex flex-col items-center justify-center min-h-[400px]">
+                <div className="w-full max-w-3xl">
+                    <div className="h-10 w-2/3 bg-gray-200 rounded-md animate-pulse mb-4"></div>
+                    <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                    <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                    <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse mb-2"></div>
+                    <div className="h-8 w-full bg-gray-200 rounded-md animate-pulse"></div>
+                </div>
             </div>
         );
     }
@@ -53,7 +55,7 @@ export default function UserTable() {
                 </Button>
             </div>
             <MaterialReactTable
-                columns={userColumns(handleEditUser)} // ✅ userColumns에 handleEditUser 전달
+                columns={userColumns(handleEditUser)}
                 data={data.content}
                 paginationDisplayMode="pages"
                 initialState={{

@@ -67,8 +67,13 @@ export default function UserEditModal({ open, onClose, user, onSave }: UserEditM
             <DialogTitle>사용자 수정</DialogTitle>
             <DialogContent>
                 <div className="p-4 flex flex-col gap-4">
-                    <TextField label="아이디" value={user?.email || ''} fullWidth disabled />
                     <TextField
+                        required
+                        label="아이디"
+                        value={user?.email || ''}
+                        fullWidth disabled />
+                    <TextField
+                        required
                         label="이름"
                         value={name}
                         onChange={(e) => {
